@@ -16,11 +16,12 @@ const int buzzer = 7;
 const int buzzer2 = 9;
 const int ledPin = 13;
 const int ledPin2 = 8;
+const int pinSensorSuhu = A0;
 
 SoftwareSerial serial_gps(3, 2); 
 
-float temperature = 00;
-int temperature1 = 00;
+float temperature;
+int temperature1;
 
 TinyGPSPlus gps;
 double latitude, longitude;
@@ -47,14 +48,13 @@ void setup() {
 }
 
 void loop() {
-  
-  
   //GPS
   while(serial_gps.available()){
     gps.encode(serial_gps.read());
   }
-    if(gps.location.isUpdated()) 
+    
     //TEMPERATUR
+   temperature1 = analogRead(pinSensorSuhu);
    temperature = temperature1 / 2.0479; 
    //1'C = 10mV (sesuai datasheet)<br>// 5v /1023 = 4,883 mV (5v = tegangan refrensi, 1023 = resolusi 10 bit)
   // setiap kenaikan 1'C --> 10 / 4.883 = 2.0479
@@ -89,8 +89,10 @@ void loop() {
 
   }
   else if (temperature > 80){
+    tone(buzzer, HIGH);
   }
-
+  else if(gps.location.isUpdated()) {
+  }
   else {
     digitalWrite(buzzer, LOW);
     digitalWrite(buzzer2, LOW);
