@@ -3,27 +3,27 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Connect to LCD via I2C, default address 0x27
 
 // defines pins numbers
-const int trigPin = 11;
-const int echoPin = 12;
+const int trigPin = 11; //pin data output ultra atas ke 11
+const int echoPin = 12; //pin data input ultra atas ke 12
 
-const int trigPin2 = 6;
-const int echoPin2 = 5;
+const int trigPin2 = 6; //pin data output ultra bawah ke 6
+const int echoPin2 = 5; //pin data input ultra bawah ke 5
 
-const int buzzer = 7;
-const int buzzer2 = 9;
-const int ledPin = 13;
-const int ledPin2 = 8;
-const int pinSensorSuhu = A0;
+const int buzzer = 7; //pin data ke 7
+const int buzzer2 = 9; //pin data ke 9
+const int ledPin = 13; //pin data ke 13
+const int pinSensorSuhu = A0; //pin data ke A0
 
-SoftwareSerial serial_gps(3, 2); 
+SoftwareSerial serial_gps(3, 2); //TX (TX GPS - RX 3 ARDUINO) DAN RX(RX GPS - TX 2 ARDUINO)
 
-float temperature;
-int temperature1;
+float temperature; //float: nilai sampai koma c: 29,44
+int temperature1; //int: bil.bulat c: 1-10
 
 TinyGPSPlus gps;
+// Define variables latitude longitude
 double latitude, longitude;
 
 
@@ -38,7 +38,6 @@ void setup() {
   pinMode(trigPin2, OUTPUT);
   pinMode(echoPin2, INPUT);
   pinMode(buzzer2, OUTPUT);
-  pinMode(ledPin2, OUTPUT);
   lcd.begin();
    lcd.backlight();
    lcd.setCursor(0, 0);
@@ -54,11 +53,12 @@ void loop() {
   }
     
     //TEMPERATUR
-   temperature1 = analogRead(pinSensorSuhu);
+   temperature1 = analogRead(pinSensorSuhu); //baca nilai analog pin A0 //konversi analog
    temperature = temperature1 / 2.0479; 
    //1'C = 10mV (sesuai datasheet)<br>// 5v /1023 = 4,883 mV (5v = tegangan refrensi, 1023 = resolusi 10 bit)
   // setiap kenaikan 1'C --> 10 / 4.883 = 2.0479
 
+// Define variables durasi jarak
   long duration, distance, duration2, distance2;
   digitalWrite(trigPin, LOW);
   digitalWrite(trigPin2, LOW);
@@ -67,7 +67,6 @@ void loop() {
   digitalWrite(trigPin, HIGH);
   digitalWrite(ledPin, HIGH);
   digitalWrite(trigPin2, HIGH);
-  digitalWrite(ledPin2, HIGH);
   delayMicroseconds(5);
   
   digitalWrite(trigPin, LOW);
@@ -79,36 +78,35 @@ void loop() {
   distance2 = (duration2/2)/29.1;
   
   //JARAK
-  if (distance <= 70) {
+  if (distance <= 70) { //mengecek jarak minimal, jika jarak kurang 70 maka sensor memberikan respon ke buzzer 
     tone(buzzer,50,100);
 
   }
   
-  else if (distance2 <= 20) {
+  else if (distance2 <= 20) { //mengecek jarak minimal, jika jarak kurang 20 maka sensor memberikan respon ke buzzer 
     tone(buzzer2,200,100);
 
   }
-  else if (temperature > 80){
+  else if (temperature > 80){ //mengecek sensor suhu, jika suhu diatas 80 derajat maka buzzer akan memberi
     tone(buzzer, HIGH);
   }
   else if(gps.location.isUpdated()) {
   }
-  else {
+  else { //jika tidak, output akan mati 
     digitalWrite(buzzer, LOW);
     digitalWrite(buzzer2, LOW);
     digitalWrite(ledPin, LOW);
-    digitalWrite(ledPin2, LOW);
   }
     latitude = gps.location.lat();
     longitude = gps.location.lng();
     Serial.print("Google Maps : ");
     String link = "www.google.com/maps/place/" + String(latitude) + "," + String(longitude) ;
-    Serial.println(link);
-    Serial.print(distance);
+    Serial.println(link);  //Serial.println(link);
+    Serial.print(distance); //serial print jarak sensor atas
     Serial.println(" cm Jarak Atas");
-    Serial.print(distance2);
+    Serial.print(distance2); //serial print jarak sensor bawah
     Serial.println(" cm Jarak Bawah");
-    Serial.print(temperature);
+    Serial.print(temperature); //serial print jarak sensor suhu
     Serial.println(" derajat Celcius");
  
     delay(500);
